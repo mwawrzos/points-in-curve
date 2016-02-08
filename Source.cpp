@@ -8,8 +8,8 @@
 
 using namespace pointInPolygon;
 
-template<typename T>
-std::ostream &operator<<(std::ostream &out, const Point<T> &p)
+template<typename T, typename Ref>
+std::ostream &operator<<(std::ostream &out, const Point<T, Ref> &p)
 {
 	return out << "[x:" << p.x << " y:" << p.y << "]";
 }
@@ -26,11 +26,11 @@ int main()
 	//std::generate(points.begin(), points.end(), [] { return Point{ std::rand() & 0xF, std::rand() & 0xF }; });
 	//std::generate(curve.begin(), curve.end(), [] { return Point{ std::rand()&0xF, std::rand()&0xF }; });
 
-	std::vector<Point<int>>
+	std::vector<Point<int, int>>
 		points = { {0,3}, {0,0},{0,5},{5,5},{5,0},{3,3} },
 		curve = { {0,3},{3,5},{5,3},{3,0} };
 
-	const auto res = pointsInPolygon(points.begin(), points.end(), curve.begin(), curve.end());
+	const auto res = pointsInPolygon(points, curve);
 	/*std::sort(points.begin(), points.end());
 
 	std::vector<Point *> cp(curve.size());
