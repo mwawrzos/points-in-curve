@@ -18,8 +18,10 @@
     <ClCompile Include="Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cycle.h">
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="geometry.h">
       <Filter>Source Files</Filter>
-    </ClCompile>
+    </ClInclude>
   </ItemGroup>
 </Project>

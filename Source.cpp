@@ -4,141 +4,29 @@
 #include <iterator>
 #include <numeric>
 
-//#include "cycle.h"
+#include "geometry.h"
 
+using namespace pointInPolygon;
 
-struct Point
-{
-	int x, y;
-
-	bool operator<(const Point &rhs) const
-	{
-		return x < rhs.x
-			|| x == rhs.x && y < rhs.y;
-	}
-};
-
-std::ostream &operator<<(std::ostream &out, const Point &p)
+template<typename T>
+std::ostream &operator<<(std::ostream &out, const Point<T> &p)
 {
 	return out << "[x:" << p.x << " y:" << p.y << "]";
 }
 
-class Bounds
-{
-	int a, b, c, multiplier;
-public:
-	Bounds(const Point &p1, const Point p2)
-		: a(p1.y - p2.y)
-		, b(p2.x - p1.x)
-		, c(-a*p1.x - b*p1.y)
-		, multiplier(p1.y < p2.y ? -1 : 1)
-	{}
-
-	bool operator==(const Bounds &rhs) const
-	{
-		return a == rhs.a
-			&& b == rhs.b
-			&& c == rhs.c;
-	}
-
-	bool matches(const Point &p) const
-	{
-		return multiplier*(p.x*a + p.y*b + c) >= 0;
-	}
-
-	friend std::ostream &operator<<(std::ostream &out, const Bounds &b);
-};
-
-std::ostream &operator<<(std::ostream &out, const Bounds &b)
-{
-	return out << "[a:" << b.a << ", b:" << b.b << ", c:" << b.c << ", m:" << b.multiplier << "]";
-}
-
-class BoundsCollection
-{
-	std::vector<Bounds> bounds;
-	const std::vector<Point> &curve;
-public:
-	BoundsCollection(const std::vector<Point> &curve)
-		: curve(curve)
-	{}
-
-	void update(const Point &p)
-	{
-		updateNeighbour(p, prev(p));
-		updateNeighbour(p, next(p));
-	}
-	bool matches(const Point &p)
-	{
-		return std::all_of(bounds.begin(), bounds.end(), [&](const Bounds &b) 
-		{
-			return b.matches(p); 
-		});
-	}
-
-	inline const Point &prev(const Point &p) const
-	{
-		return &p == &curve.front() ? curve.back() : (&p)[-1];
-	}
-	inline const Point &next(const Point &p) const
-	{
-		return &p == &curve.back() ? curve.front() : (&p)[1];
-	}
-private:
-	void updateNeighbour(const Point &p, const Point &neighbour)
-	{
-		if (p < neighbour)
-			bounds.push_back({ p, neighbour });
-		else
-			std::remove(bounds.begin(), bounds.end(), Bounds{ neighbour, p });
-	}
-};
-
-template<typename FwdIt>
-std::vector<Point> pointsInPolygon(FwdIt pBegin, FwdIt pEnd, FwdIt cBegin, FwdIt cEnd)
-{
-	if (pBegin == pEnd || cBegin == cEnd)
-		return{};
-
-	std::vector<Point> points(pBegin, pEnd), curve(cBegin, cEnd);
-
-	std::sort(points.begin(), points.end());
-	std::vector<Point *> curveSorted(curve.size());
-	std::iota(curveSorted.begin(), curveSorted.end(), &curve.front());
-	std::sort(curveSorted.begin(), curveSorted.end(), [&](const auto &a, const auto &b)
-	{
-		return *a < *b;
-	});
-
-	std::vector<Point> res;
-	BoundsCollection bc(curve);
-	auto points_it = std::lower_bound(points.begin(), points.end(), *curveSorted.front());
-	for (auto curve_it = curveSorted.begin(); curve_it != curveSorted.end(); ++curve_it)
-	{
-		bc.update(**curve_it);
-		for (; points_it != points.end() && *points_it < bc.next(**curve_it); ++points_it)
-		{
-			const auto &p = *points_it;
-			if (bc.matches(p))
-				res.push_back(p);
-		}
-	}
-
-	return res;
-}
 
 int main()
 {
 	//std::vector<Point>
-	//	points(1000000),
-	//	curve(1000000);
+	//	points(100000),
+	//	curve(100000);
 	//	//curve = { {4, 3}, {4, 1}, {2, 7}, {5, 1} };
 
 	//std::srand(1);
 	//std::generate(points.begin(), points.end(), [] { return Point{ std::rand() & 0xF, std::rand() & 0xF }; });
 	//std::generate(curve.begin(), curve.end(), [] { return Point{ std::rand()&0xF, std::rand()&0xF }; });
 
-	std::vector<Point>
+	std::vector<Point<int>>
 		points = { {0,3}, {0,0},{0,5},{5,5},{5,0},{3,3} },
 		curve = { {0,3},{3,5},{5,3},{3,0} };
 
