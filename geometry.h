@@ -47,7 +47,7 @@ namespace pointInPolygon
 			return multiplier*(p.x*a + p.y*b + c) >= 0;
 		}
 
-		friend std::ostream &::operator<<(std::ostream &out, const Bounds<T> &b);
+		friend std::ostream & operator<<(std::ostream &out, const Bounds<T> &b);
 	};
 
 	template<typename T>
@@ -92,7 +92,7 @@ namespace pointInPolygon
 	};
 
 	template<typename FwdIt1, typename FwdIt2>
-	auto pointsInPolygon(FwdIt1 pBegin, FwdIt1 pEnd, FwdIt2 cBegin, FwdIt2 cEnd)
+	auto pointsInPolygon(FwdIt1 pBegin, FwdIt1 pEnd, FwdIt2 cBegin, FwdIt2 cEnd) -> std::vector<Point<decltype(pBegin->x)>>
 	{
 		using T = decltype(pBegin->x);
 
@@ -104,7 +104,7 @@ namespace pointInPolygon
 		std::sort(points.begin(), points.end());
 		std::vector<Point<T> *> curveSorted(curve.size());
 		std::iota(curveSorted.begin(), curveSorted.end(), &curve.front());
-		std::sort(curveSorted.begin(), curveSorted.end(), [&](const auto &a, const auto &b)
+		std::sort(curveSorted.begin(), curveSorted.end(), [&](const Point<T> *a, const Point<T> *b)
 		{
 			return *a < *b;
 		});
