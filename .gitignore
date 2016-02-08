@@ -2,3 +2,5 @@
 *.pdb
 Debug
 Release
+.suo
+*.sdf
